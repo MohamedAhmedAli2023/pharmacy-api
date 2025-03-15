@@ -18,7 +18,7 @@ use App\Http\Controllers\API\MedicineController;
 |--------------------------------------------------------------------------
 | All routes are prefixed with /api/
 */
-
+Route::middleware(['jwt.auth'])->apiResource('carts', CartController::class);
 // Public Routes
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -60,15 +60,10 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::put('/{id}', [OrderController::class, 'update']); // Update order status
         Route::delete('/{id}', [OrderController::class, 'destroy']); // Cancel order
         Route::post('/{id}/confirm', [OrderController::class, 'confirm']); // Confirm order
+        Route::post('/from-cart', [OrderController::class, 'storeFromCart']);
     });
 
     // Cart Management
-    Route::prefix('cart')->group(function () {
-        Route::get('/', [CartController::class, 'index']); // View cart
-        Route::post('/add', [CartController::class, 'store']); // Add to cart
-        Route::put('/{id}', [CartController::class, 'update']); // Update cart item
-        Route::delete('/{id}', [CartController::class, 'destroy']); // Remove from cart
-    });
 
     // Payment Management
     Route::prefix('payments')->group(function () {

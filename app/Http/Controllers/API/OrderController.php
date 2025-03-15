@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Medicine;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -154,4 +155,45 @@ class OrderController extends Controller
             'order' => $order,
         ]);
     }
+    public function storeFromCart(Request $request)
+{
+    $user = Auth::user();
+    $cartItems = Cart::where('user_id', $user->id)->with('medicine')->get();
+
+    if ($cartItems->isEmpty()) {
+        return response()->json(['message' => 'Cart is empty'], 400);
+    }
+
+    $totalPrice = 0;
+    foreach ($cartItems as $item) {
+        if ($item->medicine->stock < $item->quantity) {
+            return response()->json([
+                'message' => "Insufficient stock for {$item->medicine->name}",
+                'error' => 'Stock unavailable'
+            ], 400);
+        }
+        $totalPrice += $item->medicine->price * $item->quantity;
+    }
+
+    $order = Order::create([
+        'user_id' => $user->id,
+        'total_price' => $totalPrice,
+        'status' => 'pending',
+    ]);
+
+    foreach ($cartItems as $item) {
+        $order->medicines()->attach($item->medicine_id, [
+            'quantity' => $item->quantity,
+            'price' => $item->medicine->price,
+        ]);
+        $item->medicine->decrement('stock', $item->quantity);
+        $item->delete(); // Clear cart item
+    }
+
+    $order->load('medicines');
+    return response()->json([
+        'message' => 'Order created from cart',
+        'data' => $order
+    ], 201);
+}
 }

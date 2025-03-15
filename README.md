@@ -10,7 +10,7 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - **Authentication**: Added JWT-based authentication to secure API endpoints.
 - **Stock Management**: Set up automatic stock reduction when orders are placed.
 - **Role-based Access**: Used middleware to limit sensitive actions (e.g., updating orders) to pharmacists.
-
+- **Cart Functionality**: Let users add medicines to a cart before ordering.
 ## Setup Instructions
 1. **Clone the Repository**:
    ```bash
@@ -62,9 +62,16 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - `PUT /api/orders/{id}`: Update order status (pharmacist-only).
 - `DELETE /api/orders/{id}`: Cancel a pending order.
 - `POST /api/orders/{id}/confirm`: Confirm a pending order.
+- `POST /api/orders/from-cart`: Create an order from the user's cart.
+
+### Carts
+- `GET /api/carts`: List all items in the user’s cart.
+- `POST /api/carts`: Add a medicine to the cart.
+- `GET /api/carts/{id}`: View a specific cart item.
+- `PUT /api/carts/{id}`: Update the quantity of a cart item.
+- `DELETE /api/carts/{id}`: Remove an item from the cart.
 
 ## What I Will Do Next
-- **Cart Functionality**: Let users add medicines to a cart before ordering.
 - **Payment Integration**: Add a payment system for order processing.
 - **Order Tracking**: Enable real-time status updates for orders.
 - **Reporting**: Create reports on sales, stock, and user activity.
