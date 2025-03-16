@@ -18,7 +18,7 @@ use App\Http\Controllers\API\MedicineController;
 |--------------------------------------------------------------------------
 | All routes are prefixed with /api/
 */
-Route::middleware(['jwt.auth'])->apiResource('carts', CartController::class);
+Route::middleware('jwt.auth')->apiResource('carts', CartController::class);
 // Public Routes
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -57,7 +57,7 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/', [OrderController::class, 'index']); // List orders
         Route::post('/', [OrderController::class, 'store']); // Create order
         Route::get('/{id}', [OrderController::class, 'show']); // View order
-        Route::put('/{id}', [OrderController::class, 'update']); // Update order status
+        Route::put('/{id}', [OrderController::class, 'update'])->middleware('role:pharmacist'); // Update order status
         Route::delete('/{id}', [OrderController::class, 'destroy']); // Cancel order
         Route::post('/{id}/confirm', [OrderController::class, 'confirm']); // Confirm order
         Route::post('/from-cart', [OrderController::class, 'storeFromCart']);
@@ -71,6 +71,9 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/{id}', [PaymentController::class, 'show']); // View payment status
         Route::post('/{id}/refund', [PaymentController::class, 'refund']); // Refund payment
     });
+    // Temporary for testing Stripe redirects
+    Route::get('/payments/success', [PaymentController::class, 'success']);
+    Route::get('/payments/cancel', [PaymentController::class, 'cancel']);
 
     // Notification Management
     Route::prefix('notifications')->group(function () {
@@ -84,7 +87,6 @@ Route::middleware(['jwt.auth'])->group(function () {
         Route::get('/{id}', [PrescriptionController::class, 'show']); // View prescription
         Route::put('/{id}/review', [PrescriptionController::class, 'review']); // Review by pharmacist
     });
-
     // Report Management (Dashboard)
     Route::prefix('reports')->group(function () {
         Route::get('/sales', [ReportController::class, 'sales']); // Sales stats

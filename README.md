@@ -11,6 +11,7 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - **Stock Management**: Set up automatic stock reduction when orders are placed.
 - **Role-based Access**: Used middleware to limit sensitive actions (e.g., updating orders) to pharmacists.
 - **Cart Functionality**: Let users add medicines to a cart before ordering.
+- **Payment Integration**: Add a payment system for order processing.
 ## Setup Instructions
 1. **Clone the Repository**:
    ```bash
@@ -62,7 +63,7 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - `PUT /api/orders/{id}`: Update order status (pharmacist-only).
 - `DELETE /api/orders/{id}`: Cancel a pending order.
 - `POST /api/orders/{id}/confirm`: Confirm a pending order.
-- `POST /api/orders/from-cart`: Create an order from the user's cart.
+- `POST /api/orders/from-cart`: Create an order from the user's cart amd initiate payment.
 
 ### Carts
 - `GET /api/carts`: List all items in the user’s cart.
@@ -71,8 +72,16 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - `PUT /api/carts/{id}`: Update the quantity of a cart item.
 - `DELETE /api/carts/{id}`: Remove an item from the cart.
 
+### Payments
+- `POST /api/payments/{order_id}`: Initiate payment for an order.
+- `GET /api/payments/{id}`: View payment status.
+- `POST /api/payments/{id}/refund`: Refund a completed payment.
+
+## What I’ve Done
+- Added Stripe payment integration with a separate `PaymentController`.
+
 ## What I Will Do Next
-- **Payment Integration**: Add a payment system for order processing.
+
 - **Order Tracking**: Enable real-time status updates for orders.
 - **Reporting**: Create reports on sales, stock, and user activity.
 - **Notifications**: Add email or SMS alerts for order updates.

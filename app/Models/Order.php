@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Order extends Model
 {
-    protected $fillable = ['user_id', 'total_price', 'status'];
+    protected $fillable = ['user_id', 'total_price', 'status','payment_status'];
 
     public function user(): BelongsTo
     {
@@ -19,5 +19,9 @@ class Order extends Model
         return $this->belongsToMany(Medicine::class, 'order_medicine')
                     ->withPivot('quantity', 'price')
                     ->withTimestamps();
+    }
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
     }
 }

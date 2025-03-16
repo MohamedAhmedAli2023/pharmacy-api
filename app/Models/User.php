@@ -2,12 +2,10 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use SoftDeletes;
 
     protected $fillable = ['name', 'email', 'password', 'phone', 'address', 'role_id'];
 
@@ -15,7 +13,12 @@ class User extends Authenticatable implements JWTSubject
 
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class)->withoutGlobalScopes();
+    }
+    // Helper method to check role
+    public function hasRole($roleName)
+    {
+        return $this->role && $this->role->name === $roleName;
     }
 
     public function orders()

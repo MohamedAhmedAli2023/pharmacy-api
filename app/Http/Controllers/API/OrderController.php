@@ -179,6 +179,7 @@ class OrderController extends Controller
         'user_id' => $user->id,
         'total_price' => $totalPrice,
         'status' => 'pending',
+        'payment_status' => 'pending',
     ]);
 
     foreach ($cartItems as $item) {
@@ -187,13 +188,10 @@ class OrderController extends Controller
             'price' => $item->medicine->price,
         ]);
         $item->medicine->decrement('stock', $item->quantity);
-        $item->delete(); // Clear cart item
+        $item->delete();
     }
 
-    $order->load('medicines');
-    return response()->json([
-        'message' => 'Order created from cart',
-        'data' => $order
-    ], 201);
+    // Delegate to PaymentController
+    return app(PaymentController::class)->store($request, $order->id);
 }
 }

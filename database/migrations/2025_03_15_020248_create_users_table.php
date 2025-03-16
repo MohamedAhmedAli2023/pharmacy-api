@@ -16,7 +16,6 @@ class CreateUsersTable extends Migration
             $table->string('address')->nullable();
             $table->foreignId('role_id')->constrained()->onDelete('restrict');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
