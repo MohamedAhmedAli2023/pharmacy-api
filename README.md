@@ -64,6 +64,9 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - `DELETE /api/orders/{id}`: Cancel a pending order.
 - `POST /api/orders/{id}/confirm`: Confirm a pending order.
 - `POST /api/orders/from-cart`: Create an order from the user's cart amd initiate payment.
+### Order Tracking
+- `PUT /api/orders/{id}/status`: Update order status (pharmacist only).
+- `GET /api/orders/{id}/track`: View order tracking history.
 
 ### Carts
 - `GET /api/carts`: List all items in the user’s cart.
@@ -77,15 +80,7 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 - `GET /api/payments/{id}`: View payment status.
 - `POST /api/payments/{id}/refund`: Refund a completed payment.
 
-## What I’ve Done
-- Added Stripe payment integration with a separate `PaymentController`.
 
 ## What I Will Do Next
-
-- **Order Tracking**: Enable real-time status updates for orders.
 - **Reporting**: Create reports on sales, stock, and user activity.
 - **Notifications**: Add email or SMS alerts for order updates.
-
----
-
-This README summarizes the current state of the Pharmacy API and outlines my next steps. Let me know if you’d like me to tweak anything!

@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Medicine;
 use App\Models\Cart;
+use App\Models\OrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,6 +45,7 @@ class OrderController extends Controller
             'user_id' => $user->id,
             'total_price' => $totalPrice,
             'status' => 'pending',
+            'payment_status' => 'pending',
         ]);
 
         foreach ($items as $item) {
@@ -54,6 +56,11 @@ class OrderController extends Controller
             ]);
             $medicine->decrement('stock', $item['quantity']);
         }
+
+        OrderStatus::create([
+            'order_id' => $order->id,
+            'status' => 'pending',
+        ]);
 
         $order->load('medicines');
 
@@ -89,7 +96,6 @@ class OrderController extends Controller
         ]);
     }
 
-    // Update order status (e.g., for pharmacists/admins)
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -103,8 +109,15 @@ class OrderController extends Controller
                 'error' => 'Invalid order ID',
             ], 404);
         }
-        // Optional: Add role check (e.g., middleware('role:2') for pharmacists)
+        // Optional: Add role check (e.g., middleware('role:pharmacist'))
         $order->update(['status' => $request->status]);
+
+        // Add to status history
+        OrderStatus::create([
+            'order_id' => $order->id,
+            'status' => $request->status,
+        ]);
+
         return response()->json([
             'message' => 'Order updated successfully',
             'order' => $order,
@@ -150,48 +163,62 @@ class OrderController extends Controller
             ], 400);
         }
         $order->update(['status' => 'confirmed']);
+        // Add to status history
+        OrderStatus::create([
+            'order_id' => $order->id,
+            'status' => 'confirmed',
+        ]);
+
         return response()->json([
             'message' => 'Order confirmed successfully',
             'order' => $order,
         ]);
     }
+
+    // Create order from cart
     public function storeFromCart(Request $request)
-{
-    $user = Auth::user();
-    $cartItems = Cart::where('user_id', $user->id)->with('medicine')->get();
+    {
+        $user = Auth::user();
+        $cartItems = Cart::where('user_id', $user->id)->with('medicine')->get();
 
-    if ($cartItems->isEmpty()) {
-        return response()->json(['message' => 'Cart is empty'], 400);
-    }
-
-    $totalPrice = 0;
-    foreach ($cartItems as $item) {
-        if ($item->medicine->stock < $item->quantity) {
-            return response()->json([
-                'message' => "Insufficient stock for {$item->medicine->name}",
-                'error' => 'Stock unavailable'
-            ], 400);
+        if ($cartItems->isEmpty()) {
+            return response()->json(['message' => 'Cart is empty'], 400);
         }
-        $totalPrice += $item->medicine->price * $item->quantity;
-    }
 
-    $order = Order::create([
-        'user_id' => $user->id,
-        'total_price' => $totalPrice,
-        'status' => 'pending',
-        'payment_status' => 'pending',
-    ]);
+        $totalPrice = 0;
+        foreach ($cartItems as $item) {
+            if ($item->medicine->stock < $item->quantity) {
+                return response()->json([
+                    'message' => "Insufficient stock for {$item->medicine->name}",
+                    'error' => 'Stock unavailable'
+                ], 400);
+            }
+            $totalPrice += $item->medicine->price * $item->quantity;
+        }
 
-    foreach ($cartItems as $item) {
-        $order->medicines()->attach($item->medicine_id, [
-            'quantity' => $item->quantity,
-            'price' => $item->medicine->price,
+        $order = Order::create([
+            'user_id' => $user->id,
+            'total_price' => $totalPrice,
+            'status' => 'pending',
+            'payment_status' => 'pending',
         ]);
-        $item->medicine->decrement('stock', $item->quantity);
-        $item->delete();
-    }
 
-    // Delegate to PaymentController
-    return app(PaymentController::class)->store($request, $order->id);
-}
+        foreach ($cartItems as $item) {
+            $order->medicines()->attach($item->medicine_id, [
+                'quantity' => $item->quantity,
+                'price' => $item->medicine->price,
+            ]);
+            $item->medicine->decrement('stock', $item->quantity);
+            $item->delete();
+        }
+
+        // Add initial status to order_statuses
+        OrderStatus::create([
+            'order_id' => $order->id,
+            'status' => 'pending',
+        ]);
+
+        // Delegate to PaymentController
+        return app(PaymentController::class)->store($request, $order->id);
+    }
 }

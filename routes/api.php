@@ -11,6 +11,7 @@ use App\Http\Controllers\API\PrescriptionController;
 use App\Http\Controllers\API\ReportController;
 use App\Http\Controllers\API\SettingsController;
 use App\Http\Controllers\API\MedicineController;
+use App\Http\Controllers\API\OrderTrackingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +19,7 @@ use App\Http\Controllers\API\MedicineController;
 |--------------------------------------------------------------------------
 | All routes are prefixed with /api/
 */
-Route::middleware('jwt.auth')->apiResource('carts', CartController::class);
+
 // Public Routes
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -45,31 +46,30 @@ Route::middleware(['jwt.auth'])->group(function () {
 
     // Medicine Routes
     Route::prefix('medicines')->group(function () {
-        Route::post('/', [MedicineController::class, 'store']);
+        Route::post('/', [MedicineController::class, 'store'])->middleware('role:pharmacist');
         Route::get('/', [MedicineController::class, 'index']);
         Route::get('/{id}', [MedicineController::class, 'show']);
-        Route::put('/{id}', [MedicineController::class, 'update']);
-        Route::delete('/{id}', [MedicineController::class, 'destroy']);
+        Route::put('/{id}', [MedicineController::class, 'update'])->middleware('role:pharmacist');
+        Route::delete('/{id}', [MedicineController::class, 'destroy'])->middleware('role:pharmacist');
     });
 
     // Order Management
-    Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'index']); // List orders
-        Route::post('/', [OrderController::class, 'store']); // Create order
-        Route::get('/{id}', [OrderController::class, 'show']); // View order
-        Route::put('/{id}', [OrderController::class, 'update'])->middleware('role:pharmacist'); // Update order status
-        Route::delete('/{id}', [OrderController::class, 'destroy']); // Cancel order
-        Route::post('/{id}/confirm', [OrderController::class, 'confirm']); // Confirm order
+
+        Route::apiResource('orders', OrderController::class);
+        Route::prefix('orders')->group(function () {
         Route::post('/from-cart', [OrderController::class, 'storeFromCart']);
-    });
+        Route::post('/{id}/confirm', [OrderController::class, 'confirm']);
+        Route::put('/{id}/status', [OrderTrackingController::class, 'updateStatus'])->middleware('role:pharmacist');
+        Route::get('/{id}/track', [OrderTrackingController::class, 'track']);
+     });
 
     // Cart Management
-
+    Route::apiResource('carts', CartController::class);
     // Payment Management
     Route::prefix('payments')->group(function () {
-        Route::post('/{order_id}', [PaymentController::class, 'store']); // Process payment
-        Route::get('/{id}', [PaymentController::class, 'show']); // View payment status
-        Route::post('/{id}/refund', [PaymentController::class, 'refund']); // Refund payment
+        Route::post('/{order_id}', [PaymentController::class, 'store']);
+        Route::get('/{id}', [PaymentController::class, 'show']);
+        Route::post('/{id}/refund', [PaymentController::class, 'refund']);
     });
     // Temporary for testing Stripe redirects
     Route::get('/payments/success', [PaymentController::class, 'success']);

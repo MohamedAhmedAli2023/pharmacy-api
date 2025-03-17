@@ -24,4 +24,13 @@ class Order extends Model
     {
         return $this->hasOne(Payment::class);
     }
+    public function statuses()
+    {
+        return $this->hasMany(OrderStatus::class);
+    }
+
+    public function latestStatus()
+    {
+        return $this->hasOne(OrderStatus::class)->latestOfMany();
+    }
 }
