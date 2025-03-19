@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\OrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\OrderStatusUpdated;
+use Illuminate\Support\Facades\Mail;
 
 class OrderTrackingController extends Controller
 {
@@ -26,9 +28,10 @@ class OrderTrackingController extends Controller
 
         // Update order's current status
         $order->update(['status' => $request->status]);
-
+        // Send email notification to the order’s user
+        Mail::to($order->user->email)->send(new OrderStatusUpdated($order, $request->status));
         return response()->json([
-            'message' => 'Order status updated',
+            'message' => 'Order status updated,email sent to user',
             'status' => $status,
         ], 200);
     }

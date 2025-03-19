@@ -13,6 +13,7 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 -   **Role-based Access**: Used middleware to limit sensitive actions (e.g., updating orders) to pharmacists.
 -   **Cart Functionality**: Let users add medicines to a cart before ordering.
 -   **Payment Integration**: Add a payment system for order processing.
+-   **Notifications**:  Gmail SMTP email notifications for order status updates.
 
 ## Setup Instructions
 
@@ -101,4 +102,4 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 ## What I Will Do Next
 
 -   **Reporting**: Create reports on sales, stock, and user activity.
--   **Notifications**: Add email or SMS alerts for order updates.
+
