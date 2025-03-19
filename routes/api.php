@@ -89,7 +89,7 @@ Route::middleware(['jwt.auth'])->group(function () {
     });
     // Report Management (Dashboard)
     Route::prefix('reports')->group(function () {
-        Route::get('/sales', [ReportController::class, 'sales']); // Sales stats
+        Route::get('/sales', [ReportController::class, 'salesReport']); // Sales stats
         Route::get('/orders', [ReportController::class, 'orders']); // Order stats
         Route::get('/financials', [ReportController::class, 'financials']); // Financial reports
     });

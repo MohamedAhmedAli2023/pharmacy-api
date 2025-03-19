@@ -14,46 +14,7 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 -   **Cart Functionality**: Let users add medicines to a cart before ordering.
 -   **Payment Integration**: Add a payment system for order processing.
 -   **Notifications**:  Gmail SMTP email notifications for order status updates.
-
-## Setup Instructions
-
-1. **Clone the Repository**:
-
-    ```bash
-    git clone <repository-url>
-    cd pharmacy-api
-    ```
-
-2. **Install Dependencies**:
-
-    ```bash
-    composer install
-    ```
-
-3. **Configure Environment**:
-
-    - Copy `.env.example` to `.env` and fill in your database details.
-    - Generate an app key:
-        ```bash
-        php artisan key:generate
-        ```
-
-4. **Run Migrations**:
-
-    ```bash
-    php artisan migrate
-    ```
-
-5. **Start the Server**:
-
-    ```bash
-    php artisan serve
-    ```
-
-6. **Test the API**:
-    - Use a tool like Postman.
-    - Log in with `POST /api/auth/login` to get a JWT token, then include it in the `Authorization` header for protected routes.
-
+-   **Reporting**: Create reports on sales, stock, and user activity.
 ## API Endpoints
 
 ### Authentication
@@ -99,7 +60,6 @@ The **Pharmacy API** is a RESTful API built with Laravel to manage pharmacy oper
 -   `GET /api/payments/{id}`: View payment status.
 -   `POST /api/payments/{id}/refund`: Refund a completed payment.
 
-## What I Will Do Next
-
--   **Reporting**: Create reports on sales, stock, and user activity.
+### Reporting
+- `GET /api/reports/sales?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD`: Generate a sales report for the specified date range (pharmacist only). 
 
